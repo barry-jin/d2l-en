@@ -11,18 +11,6 @@ from mxnet.gluon import nn
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import torch
-from torch import nn
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-```
 
 ## Model
 
@@ -44,27 +32,7 @@ net.add(nn.Dense(256, activation='relu'),
 net.initialize(init.Normal(sigma=0.01))
 ```
 
-```{.python .input}
-#@tab pytorch
-net = nn.Sequential(nn.Flatten(),
-                    nn.Linear(784, 256),
-                    nn.ReLU(),
-                    nn.Linear(256, 10))
 
-def init_weights(m):
-    if type(m) == nn.Linear:
-        nn.init.normal_(m.weight, std=0.01)
-
-net.apply(init_weights);
-```
-
-```{.python .input}
-#@tab tensorflow
-net = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(256, activation='relu'),
-    tf.keras.layers.Dense(10)])
-```
 
 [**The training loop**] is exactly the same
 as when we implemented softmax regression.
@@ -78,19 +46,7 @@ loss = gluon.loss.SoftmaxCrossEntropyLoss()
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 ```
 
-```{.python .input}
-#@tab pytorch
-batch_size, lr, num_epochs = 256, 0.1, 10
-loss = nn.CrossEntropyLoss()
-trainer = torch.optim.SGD(net.parameters(), lr=lr)
-```
 
-```{.python .input}
-#@tab tensorflow
-batch_size, lr, num_epochs = 256, 0.1, 10
-loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-trainer = tf.keras.optimizers.SGD(learning_rate=lr)
-```
 
 ```{.python .input}
 #@tab all

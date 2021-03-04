@@ -187,20 +187,7 @@ from mxnet.gluon import nn
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-from torch import nn
-```
 
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-```
 
 First, we [**generate some data as before**]
 
@@ -243,21 +230,7 @@ def init_params():
     return [w, b]
 ```
 
-```{.python .input}
-#@tab pytorch
-def init_params():
-    w = torch.normal(0, 1, size=(num_inputs, 1), requires_grad=True)
-    b = torch.zeros(1, requires_grad=True)
-    return [w, b]
-```
 
-```{.python .input}
-#@tab tensorflow
-def init_params():
-    w = tf.Variable(tf.random.normal(mean=1, shape=(num_inputs, 1)))
-    b = tf.Variable(tf.zeros(shape=(1, )))
-    return [w, b]
-```
 
 ### (**Defining $L_2$ Norm Penalty**)
 
@@ -267,18 +240,6 @@ is to square all terms in place and sum them up.
 ```{.python .input}
 def l2_penalty(w):
     return (w**2).sum() / 2
-```
-
-```{.python .input}
-#@tab pytorch
-def l2_penalty(w):
-    return torch.sum(w.pow(2)) / 2
-```
-
-```{.python .input}
-#@tab tensorflow
-def l2_penalty(w):
-    return tf.reduce_sum(tf.pow(w, 2)) / 2
 ```
 
 ### [**Defining the Training Loop**]
@@ -311,49 +272,7 @@ def train(lambd):
     print('L2 norm of w:', np.linalg.norm(w))
 ```
 
-```{.python .input}
-#@tab pytorch
-def train(lambd):
-    w, b = init_params()
-    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
-    num_epochs, lr = 100, 0.003
-    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
-                            xlim=[5, num_epochs], legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            with torch.enable_grad():
-                # The L2 norm penalty term has been added, and broadcasting
-                # makes `l2_penalty(w)` a vector whose length is `batch_size`
-                l = loss(net(X), y) + lambd * l2_penalty(w)
-            l.sum().backward()
-            d2l.sgd([w, b], lr, batch_size)
-        if (epoch + 1) % 5 == 0:
-            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
-                                     d2l.evaluate_loss(net, test_iter, loss)))
-    print('L2 norm of w:', torch.norm(w).item())
-```
 
-```{.python .input}
-#@tab tensorflow
-def train(lambd):
-    w, b = init_params()
-    net, loss = lambda X: d2l.linreg(X, w, b), d2l.squared_loss
-    num_epochs, lr = 100, 0.003
-    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
-                            xlim=[5, num_epochs], legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            with tf.GradientTape() as tape:
-                # The L2 norm penalty term has been added, and broadcasting
-                # makes `l2_penalty(w)` a vector whose length is `batch_size`
-                l = loss(net(X), y) + lambd * l2_penalty(w)
-            grads = tape.gradient(l, [w, b])
-            d2l.sgd([w, b], grads, lr, batch_size)
-        if (epoch + 1) % 5 == 0:
-            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
-                                     d2l.evaluate_loss(net, test_iter, loss)))
-    print('L2 norm of w:', tf.norm(w).numpy())
-```
 
 ### [**Training without Regularization**]
 
@@ -448,59 +367,7 @@ def train_concise(wd):
     print('L2 norm of w:', np.linalg.norm(net[0].weight.data()))
 ```
 
-```{.python .input}
-#@tab pytorch
-def train_concise(wd):
-    net = nn.Sequential(nn.Linear(num_inputs, 1))
-    for param in net.parameters():
-        param.data.normal_()
-    loss = nn.MSELoss()
-    num_epochs, lr = 100, 0.003
-    # The bias parameter has not decayed
-    trainer = torch.optim.SGD([
-        {"params":net[0].weight,'weight_decay': wd},
-        {"params":net[0].bias}], lr=lr)
-    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
-                            xlim=[5, num_epochs], legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            with torch.enable_grad():
-                trainer.zero_grad()
-                l = loss(net(X), y)
-            l.backward()
-            trainer.step()
-        if (epoch + 1) % 5 == 0:
-            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
-                                     d2l.evaluate_loss(net, test_iter, loss)))
-    print('L2 norm of w:', net[0].weight.norm().item())
-```
 
-```{.python .input}
-#@tab tensorflow
-def train_concise(wd):
-    net = tf.keras.models.Sequential()
-    net.add(tf.keras.layers.Dense(
-        1, kernel_regularizer=tf.keras.regularizers.l2(wd)))
-    net.build(input_shape=(1, num_inputs))
-    w, b = net.trainable_variables
-    loss = tf.keras.losses.MeanSquaredError()
-    num_epochs, lr = 100, 0.003
-    trainer = tf.keras.optimizers.SGD(learning_rate=lr)
-    animator = d2l.Animator(xlabel='epochs', ylabel='loss', yscale='log',
-                            xlim=[5, num_epochs], legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            with tf.GradientTape() as tape:
-                # `tf.keras` requires retrieving and adding the losses from
-                # layers manually for custom training loop.
-                l = loss(net(X), y) + net.losses
-            grads = tape.gradient(l, net.trainable_variables)
-            trainer.apply_gradients(zip(grads, net.trainable_variables))
-        if (epoch + 1) % 5 == 0:
-            animator.add(epoch + 1, (d2l.evaluate_loss(net, train_iter, loss),
-                                     d2l.evaluate_loss(net, test_iter, loss)))
-    print('L2 norm of w:', tf.norm(net.get_weights()[0]).numpy())
-```
 
 [**The plots look identical to those when
 we implemented weight decay from scratch**].

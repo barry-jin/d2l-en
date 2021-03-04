@@ -193,30 +193,6 @@ import pandas as pd
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-# If pandas is not installed, please uncomment the following line:
-# !pip install pandas
-
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-from torch import nn
-import pandas as pd
-import numpy as np
-```
-
-```{.python .input}
-#@tab tensorflow
-# If pandas is not installed, please uncomment the following line:
-# !pip install pandas
-
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-import pandas as pd
-import numpy as np
-```
 
 For convenience, we can download and cache
 the Kaggle housing dataset
@@ -373,26 +349,7 @@ def get_net():
     return net
 ```
 
-```{.python .input}
-#@tab pytorch
-loss = nn.MSELoss()
-in_features = train_features.shape[1]
 
-def get_net():
-    net = nn.Sequential(nn.Linear(in_features,1))
-    return net
-```
-
-```{.python .input}
-#@tab tensorflow
-loss = tf.keras.losses.MeanSquaredError()
-
-def get_net():
-    net = tf.keras.models.Sequential()
-    net.add(tf.keras.layers.Dense(
-        1, kernel_regularizer=tf.keras.regularizers.l2(weight_decay)))
-    return net
-```
 
 With house prices, as with stock prices,
 we care about relative quantities
@@ -427,26 +384,7 @@ def log_rmse(net, features, labels):
     return np.sqrt(2 * loss(np.log(clipped_preds), np.log(labels)).mean())
 ```
 
-```{.python .input}
-#@tab pytorch
-def log_rmse(net, features, labels):
-    # To further stabilize the value when the logarithm is taken, set the
-    # value less than 1 as 1
-    clipped_preds = torch.clamp(net(features), 1, float('inf'))
-    rmse = torch.sqrt(loss(torch.log(clipped_preds),
-                           torch.log(labels)))
-    return rmse.item()
-```
 
-```{.python .input}
-#@tab tensorflow
-def log_rmse(y_true, y_pred):
-    # To further stabilize the value when the logarithm is taken, set the
-    # value less than 1 as 1
-    clipped_preds = tf.clip_by_value(y_pred, 1, float('inf'))
-    return tf.sqrt(tf.reduce_mean(loss(
-        tf.math.log(y_true), tf.math.log(clipped_preds))))
-```
 
 Unlike in previous sections, our training functions
 will rely on the Adam optimizer
@@ -477,50 +415,7 @@ def train(net, train_features, train_labels, test_features, test_labels,
     return train_ls, test_ls
 ```
 
-```{.python .input}
-#@tab pytorch
-def train(net, train_features, train_labels, test_features, test_labels,
-          num_epochs, learning_rate, weight_decay, batch_size):
-    train_ls, test_ls = [], []
-    train_iter = d2l.load_array((train_features, train_labels), batch_size)
-    # The Adam optimization algorithm is used here
-    optimizer = torch.optim.Adam(net.parameters(),
-                                 lr = learning_rate,
-                                 weight_decay = weight_decay)
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            optimizer.zero_grad()
-            l = loss(net(X), y)
-            l.backward()
-            optimizer.step()
-        train_ls.append(log_rmse(net, train_features, train_labels))
-        if test_labels is not None:
-            test_ls.append(log_rmse(net, test_features, test_labels))
-    return train_ls, test_ls
-```
 
-```{.python .input}
-#@tab tensorflow
-def train(net, train_features, train_labels, test_features, test_labels,
-          num_epochs, learning_rate, weight_decay, batch_size):
-    train_ls, test_ls = [], []
-    train_iter = d2l.load_array((train_features, train_labels), batch_size)
-    # The Adam optimization algorithm is used here
-    optimizer = tf.keras.optimizers.Adam(learning_rate)
-    net.compile(loss=loss, optimizer=optimizer)
-    for epoch in range(num_epochs):
-        for X, y in train_iter:
-            with tf.GradientTape() as tape:
-                y_hat = net(X)
-                l = loss(y, y_hat)
-            params = net.trainable_variables
-            grads = tape.gradient(l, params)
-            optimizer.apply_gradients(zip(grads, params))
-        train_ls.append(log_rmse(train_labels, net(train_features)))
-        if test_labels is not None:
-            test_ls.append(log_rmse(test_labels, net(test_features)))
-    return train_ls, test_ls
-```
 
 ## $K$-Fold Cross-Validation
 

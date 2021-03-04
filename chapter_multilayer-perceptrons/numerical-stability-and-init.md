@@ -100,32 +100,6 @@ y.backward()
 d2l.plot(x, [y, x.grad], legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-
-x = torch.arange(-8.0, 8.0, 0.1, requires_grad=True)
-y = torch.sigmoid(x)
-y.backward(torch.ones_like(x))
-
-d2l.plot(x.detach().numpy(), [y.detach().numpy(), x.grad.numpy()],
-         legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
-```
-
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-
-x = tf.Variable(tf.range(-8.0, 8.0, 0.1))
-with tf.GradientTape() as t:
-    y = tf.nn.sigmoid(x)
-d2l.plot(x.numpy(), [y.numpy(), t.gradient(y, x).numpy()],
-         legend=['sigmoid', 'gradient'], figsize=(4.5, 2.5))
-```
 
 As you can see, (**the sigmoid's gradient vanishes
 both when its inputs are large and when they are small**).
@@ -165,25 +139,6 @@ for i in range(100):
 print('after multiplying 100 matrices', M)
 ```
 
-```{.python .input}
-#@tab pytorch
-M = torch.normal(0, 1, size=(4,4))
-print('a single matrix \n',M)
-for i in range(100):
-    M = torch.mm(M,torch.normal(0, 1, size=(4, 4)))
-
-print('after multiplying 100 matrices\n', M)
-```
-
-```{.python .input}
-#@tab tensorflow
-M = tf.random.normal((4, 4))
-print('a single matrix \n', M)
-for i in range(100):
-    M = tf.matmul(M, tf.random.normal((4, 4)))
-
-print('after multiplying 100 matrices\n', M.numpy())
-```
 
 ### Breaking the Symmetry
 

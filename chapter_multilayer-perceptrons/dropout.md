@@ -241,41 +241,7 @@ def dropout_layer(X, dropout):
     return mask.astype(np.float32) * X / (1.0 - dropout)
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import torch
-from torch import nn
 
-def dropout_layer(X, dropout):
-    assert 0 <= dropout <= 1
-    # In this case, all elements are dropped out
-    if dropout == 1:
-        return torch.zeros_like(X)
-    # In this case, all elements are kept
-    if dropout == 0:
-        return X
-    mask = (torch.Tensor(X.shape).uniform_(0, 1) > dropout).float()
-    return mask * X / (1.0 - dropout)
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-
-def dropout_layer(X, dropout):
-    assert 0 <= dropout <= 1
-    # In this case, all elements are dropped out
-    if dropout == 1:
-        return tf.zeros_like(X)
-    # In this case, all elements are kept
-    if dropout == 0:
-        return X
-    mask = tf.random.uniform(
-        shape=tf.shape(X), minval=0, maxval=1) < 1 - dropout
-    return tf.cast(mask, dtype=tf.float32) * X / (1.0 - dropout)
-```
 
 We can [**test out the `dropout_layer` function on a few examples**].
 In the following lines of code,
@@ -289,23 +255,7 @@ print(dropout_layer(X, 0.5))
 print(dropout_layer(X, 1))
 ```
 
-```{.python .input}
-#@tab pytorch
-X= torch.arange(16, dtype = torch.float32).reshape((2, 8))
-print(X)
-print(dropout_layer(X, 0.))
-print(dropout_layer(X, 0.5))
-print(dropout_layer(X, 1.))
-```
 
-```{.python .input}
-#@tab tensorflow
-X = tf.reshape(tf.range(16, dtype=tf.float32), (2, 8))
-print(X)
-print(dropout_layer(X, 0.))
-print(dropout_layer(X, 0.5))
-print(dropout_layer(X, 1.))
-```
 
 ### Defining Model Parameters
 
@@ -329,15 +279,6 @@ for param in params:
     param.attach_grad()
 ```
 
-```{.python .input}
-#@tab pytorch
-num_inputs, num_outputs, num_hiddens1, num_hiddens2 = 784, 10, 256, 256
-```
-
-```{.python .input}
-#@tab tensorflow
-num_outputs, num_hiddens1, num_hiddens2 = 10, 256, 256
-```
 
 ### Defining the Model
 
@@ -367,63 +308,7 @@ def net(X):
     return np.dot(H2, W3) + b3
 ```
 
-```{.python .input}
-#@tab pytorch
-dropout1, dropout2 = 0.2, 0.5
 
-class Net(nn.Module):
-    def __init__(self, num_inputs, num_outputs, num_hiddens1, num_hiddens2,
-                 is_training = True):
-        super(Net, self).__init__()
-        self.num_inputs = num_inputs
-        self.training = is_training
-        self.lin1 = nn.Linear(num_inputs, num_hiddens1)
-        self.lin2 = nn.Linear(num_hiddens1, num_hiddens2)
-        self.lin3 = nn.Linear(num_hiddens2, num_outputs)
-        self.relu = nn.ReLU()
-
-    def forward(self, X):
-        H1 = self.relu(self.lin1(X.reshape((-1, self.num_inputs))))
-        # Use dropout only when training the model
-        if self.training == True:
-            # Add a dropout layer after the first fully connected layer
-            H1 = dropout_layer(H1, dropout1)
-        H2 = self.relu(self.lin2(H1))
-        if self.training == True:
-            # Add a dropout layer after the second fully connected layer
-            H2 = dropout_layer(H2, dropout2)
-        out = self.lin3(H2)
-        return out
-
-
-net = Net(num_inputs, num_outputs, num_hiddens1, num_hiddens2)
-```
-
-```{.python .input}
-#@tab tensorflow
-dropout1, dropout2 = 0.2, 0.5
-
-class Net(tf.keras.Model):
-    def __init__(self, num_outputs, num_hiddens1, num_hiddens2):
-        super().__init__()
-        self.input_layer = tf.keras.layers.Flatten()
-        self.hidden1 = tf.keras.layers.Dense(num_hiddens1, activation='relu')
-        self.hidden2 = tf.keras.layers.Dense(num_hiddens2, activation='relu')
-        self.output_layer = tf.keras.layers.Dense(num_outputs)
-
-    def call(self, inputs, training=None):
-        x = self.input_layer(inputs)
-        x = self.hidden1(x)
-        if training:
-            x = dropout_layer(x, dropout1)
-        x = self.hidden2(x)
-        if training:
-            x = dropout_layer(x, dropout2)
-        x = self.output_layer(x)
-        return x
-
-net = Net(num_outputs, num_hiddens1, num_hiddens2)
-```
 
 ### [**Training and Testing**]
 
@@ -437,23 +322,6 @@ d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs,
               lambda batch_size: d2l.sgd(params, lr, batch_size))
 ```
 
-```{.python .input}
-#@tab pytorch
-num_epochs, lr, batch_size = 10, 0.5, 256
-loss = nn.CrossEntropyLoss()
-train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-trainer = torch.optim.SGD(net.parameters(), lr=lr)
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
-```
-
-```{.python .input}
-#@tab tensorflow
-num_epochs, lr, batch_size = 10, 0.5, 256
-loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
-trainer = tf.keras.optimizers.SGD(learning_rate=lr)
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
-```
 
 ## [**Concise Implementation**]
 
@@ -480,39 +348,6 @@ net.add(nn.Dense(256, activation="relu"),
 net.initialize(init.Normal(sigma=0.01))
 ```
 
-```{.python .input}
-#@tab pytorch
-net = nn.Sequential(nn.Flatten(),
-        nn.Linear(784, 256),
-        nn.ReLU(),
-        # Add a dropout layer after the first fully connected layer
-        nn.Dropout(dropout1),
-        nn.Linear(256, 256),
-        nn.ReLU(),
-        # Add a dropout layer after the second fully connected layer
-        nn.Dropout(dropout2),
-        nn.Linear(256, 10))
-
-def init_weights(m):
-    if type(m) == nn.Linear:
-        nn.init.normal_(m.weight, std=0.01)
-
-net.apply(init_weights);
-```
-
-```{.python .input}
-#@tab tensorflow
-net = tf.keras.models.Sequential([
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    # Add a dropout layer after the first fully connected layer
-    tf.keras.layers.Dropout(dropout1),
-    tf.keras.layers.Dense(256, activation=tf.nn.relu),
-    # Add a dropout layer after the second fully connected layer
-    tf.keras.layers.Dropout(dropout2),
-    tf.keras.layers.Dense(10),
-])
-```
 
 Next, we [**train and test the model**].
 
@@ -521,17 +356,7 @@ trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': lr})
 d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
 ```
 
-```{.python .input}
-#@tab pytorch
-trainer = torch.optim.SGD(net.parameters(), lr=lr)
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
-```
 
-```{.python .input}
-#@tab tensorflow
-trainer = tf.keras.optimizers.SGD(learning_rate=lr)
-d2l.train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
-```
 
 ## Summary
 

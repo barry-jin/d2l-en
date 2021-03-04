@@ -289,19 +289,6 @@ from mxnet import autograd, np, npx
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-```
-
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-```
 
 ### ReLU Function
 
@@ -329,19 +316,6 @@ with autograd.record():
 d2l.plot(x, y, 'x', 'relu(x)', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-x = torch.arange(-8.0, 8.0, 0.1, requires_grad=True)
-y = torch.relu(x)
-d2l.plot(x.detach(), y.detach(), 'x', 'relu(x)', figsize=(5, 2.5))
-```
-
-```{.python .input}
-#@tab tensorflow
-x = tf.Variable(tf.range(-8.0, 8.0, 0.1), dtype=tf.float32)
-y = tf.nn.relu(x)
-d2l.plot(x.numpy(), y.numpy(), 'x', 'relu(x)', figsize=(5, 2.5))
-```
 
 When the input is negative,
 the derivative of the ReLU function is 0,
@@ -363,19 +337,7 @@ y.backward()
 d2l.plot(x, x.grad, 'x', 'grad of relu', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-y.backward(torch.ones_like(x), retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'grad of relu', figsize=(5, 2.5))
-```
 
-```{.python .input}
-#@tab tensorflow
-with tf.GradientTape() as t:
-    y = tf.nn.relu(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of relu',
-         figsize=(5, 2.5))
-```
 
 The reason for using ReLU is that
 its derivatives are particularly well behaved:
@@ -444,17 +406,6 @@ with autograd.record():
 d2l.plot(x, y, 'x', 'sigmoid(x)', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-y = torch.sigmoid(x)
-d2l.plot(x.detach(), y.detach(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
-```
-
-```{.python .input}
-#@tab tensorflow
-y = tf.nn.sigmoid(x)
-d2l.plot(x.numpy(), y.numpy(), 'x', 'sigmoid(x)', figsize=(5, 2.5))
-```
 
 The derivative of the sigmoid function is given by the following equation:
 
@@ -473,21 +424,6 @@ y.backward()
 d2l.plot(x, x.grad, 'x', 'grad of sigmoid', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-# Clear out previous gradients
-x.grad.data.zero_()
-y.backward(torch.ones_like(x),retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'grad of sigmoid', figsize=(5, 2.5))
-```
-
-```{.python .input}
-#@tab tensorflow
-with tf.GradientTape() as t:
-    y = tf.nn.sigmoid(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of sigmoid',
-         figsize=(5, 2.5))
-```
 
 ### Tanh Function
 
@@ -506,17 +442,6 @@ with autograd.record():
 d2l.plot(x, y, 'x', 'tanh(x)', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-y = torch.tanh(x)
-d2l.plot(x.detach(), y.detach(), 'x', 'tanh(x)', figsize=(5, 2.5))
-```
-
-```{.python .input}
-#@tab tensorflow
-y = tf.nn.tanh(x)
-d2l.plot(x.numpy(), y.numpy(), 'x', 'tanh(x)', figsize=(5, 2.5))
-```
 
 The derivative of the tanh function is:
 
@@ -534,21 +459,7 @@ y.backward()
 d2l.plot(x, x.grad, 'x', 'grad of tanh', figsize=(5, 2.5))
 ```
 
-```{.python .input}
-#@tab pytorch
-# Clear out previous gradients.
-x.grad.data.zero_()
-y.backward(torch.ones_like(x),retain_graph=True)
-d2l.plot(x.detach(), x.grad, 'x', 'grad of tanh', figsize=(5, 2.5))
-```
 
-```{.python .input}
-#@tab tensorflow
-with tf.GradientTape() as t:
-    y = tf.nn.tanh(x)
-d2l.plot(x.numpy(), t.gradient(y, x).numpy(), 'x', 'grad of tanh',
-         figsize=(5, 2.5))
-```
 
 In summary, we now know how to incorporate nonlinearities
 to build expressive multilayer neural network architectures.

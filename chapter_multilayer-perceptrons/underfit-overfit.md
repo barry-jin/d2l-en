@@ -396,22 +396,6 @@ import math
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import torch
-from torch import nn
-import numpy as np
-import math
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-import numpy as np
-import math
-```
 
 ### Generating the Dataset
 
@@ -453,12 +437,6 @@ where $\Gamma(n)=(n-1)!$.
 The value 1 is technically a feature,
 namely the constant feature corresponding to the bias.
 
-```{.python .input}
-#@tab pytorch, tensorflow
-# Convert from NumPy ndarrays to tensors
-true_w, features, poly_features, labels = [d2l.tensor(x, dtype=
-    d2l.float32) for x in [true_w, features, poly_features, labels]]
-```
 
 ```{.python .input}
 #@tab all
@@ -480,18 +458,6 @@ def evaluate_loss(net, data_iter, loss):  #@save
     return metric[0] / metric[1]
 ```
 
-```{.python .input}
-#@tab pytorch
-def evaluate_loss(net, data_iter, loss):  #@save
-    """Evaluate the loss of a model on the given dataset."""
-    metric = d2l.Accumulator(2)  # Sum of losses, no. of examples
-    for X, y in data_iter:
-        out = net(X)
-        y = d2l.reshape(y, out.shape)
-        l = loss(out, y)
-        metric.add(d2l.reduce_sum(l), d2l.size(l))
-    return metric[0] / metric[1]
-```
 
 Now [**define the training function**].
 
@@ -521,57 +487,6 @@ def train(train_features, test_features, train_labels, test_labels,
     print('weight:', net[0].weight.data().asnumpy())
 ```
 
-```{.python .input}
-#@tab pytorch
-def train(train_features, test_features, train_labels, test_labels,
-          num_epochs=400):
-    loss = nn.MSELoss()
-    input_shape = train_features.shape[-1]
-    # Switch off the bias since we already catered for it in the polynomial
-    # features
-    net = nn.Sequential(nn.Linear(input_shape, 1, bias=False))
-    batch_size = min(10, train_labels.shape[0])
-    train_iter = d2l.load_array((train_features, train_labels.reshape(-1,1)),
-                                batch_size)
-    test_iter = d2l.load_array((test_features, test_labels.reshape(-1,1)),
-                               batch_size, is_train=False)
-    trainer = torch.optim.SGD(net.parameters(), lr=0.01)
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss', yscale='log',
-                            xlim=[1, num_epochs], ylim=[1e-3, 1e2],
-                            legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        d2l.train_epoch_ch3(net, train_iter, loss, trainer)
-        if epoch == 0 or (epoch + 1) % 20 == 0:
-            animator.add(epoch + 1, (evaluate_loss(net, train_iter, loss),
-                                     evaluate_loss(net, test_iter, loss)))
-    print('weight:', net[0].weight.data.numpy())
-```
-
-```{.python .input}
-#@tab tensorflow
-def train(train_features, test_features, train_labels, test_labels,
-          num_epochs=400):
-    loss = tf.losses.MeanSquaredError()
-    input_shape = train_features.shape[-1]
-    # Switch off the bias since we already catered for it in the polynomial
-    # features
-    net = tf.keras.Sequential()
-    net.add(tf.keras.layers.Dense(1, use_bias=False))
-    batch_size = min(10, train_labels.shape[0])
-    train_iter = d2l.load_array((train_features, train_labels), batch_size)
-    test_iter = d2l.load_array((test_features, test_labels), batch_size,
-                               is_train=False)
-    trainer = tf.keras.optimizers.SGD(learning_rate=.01)
-    animator = d2l.Animator(xlabel='epoch', ylabel='loss', yscale='log',
-                            xlim=[1, num_epochs], ylim=[1e-3, 1e2],
-                            legend=['train', 'test'])
-    for epoch in range(num_epochs):
-        d2l.train_epoch_ch3(net, train_iter, loss, trainer)
-        if epoch == 0 or (epoch + 1) % 20 == 0:
-            animator.add(epoch + 1, (evaluate_loss(net, train_iter, loss),
-                                     evaluate_loss(net, test_iter, loss)))
-    print('weight:', net.get_weights()[0].T)
-```
 
 ### [**Third-Order Polynomial Function Fitting (Normal)**]
 
