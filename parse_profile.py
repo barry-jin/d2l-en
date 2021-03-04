@@ -21,10 +21,10 @@ class ProfileParser(object):
                 os.system('notedown {} --run > dummy.ipynb'.format(file))
             except OSError:
                 print("[INFO] Error: ")
-            with open('profile.json', 'r') as f:
-                profile_res = json.load(f)
-            self.parse_num_occurrences(profile_res)
             if os.path.exists('profile.json'):
+                with open('profile.json', 'r') as f:
+                    profile_res = json.load(f)
+                self.parse_num_occurrences(profile_res)
                 os.remove('profile.json')
             if os.path.exists('dummy.ipynb'):
                 os.remove('dummy.ipynb')
