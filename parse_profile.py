@@ -14,15 +14,17 @@ class ProfileParser(object):
     def parse_markdown(self):
         os.environ['MXNET_PROFILER_AUTOSTART'] = '1'
         for file in os.listdir(self._work_path):
+            if file == "index.md":
+                continue
             try:
                 file = os.path.join(self._work_path, file)
-                os.system('notedown {} --run'.format(file))
+                os.system('notedown {} --run > /dev/null'.format(file))
             except OSError:
                 print("[INFO] Error: ")
             with open('profile.json', 'r') as f:
                 profile_res = json.load(f)
             self.parse_num_occurrences(profile_res)
-            os.rmdir('profile.json')
+            os.remove('profile.json')
 
     def parse_num_occurrences(self, data):
         for d in data['traceEvents']:
