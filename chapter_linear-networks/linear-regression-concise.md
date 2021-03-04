@@ -28,20 +28,6 @@ from mxnet import autograd, gluon, np, npx
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import numpy as np
-import torch
-from torch.utils import data
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import numpy as np
-import tensorflow as tf
-```
 
 ```{.python .input}
 #@tab all
@@ -68,24 +54,6 @@ def load_array(data_arrays, batch_size, is_train=True):  #@save
     return gluon.data.DataLoader(dataset, batch_size, shuffle=is_train)
 ```
 
-```{.python .input}
-#@tab pytorch
-def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """Construct a PyTorch data iterator."""
-    dataset = data.TensorDataset(*data_arrays)
-    return data.DataLoader(dataset, batch_size, shuffle=is_train)
-```
-
-```{.python .input}
-#@tab tensorflow
-def load_array(data_arrays, batch_size, is_train=True):  #@save
-    """Construct a TensorFlow data iterator."""
-    dataset = tf.data.Dataset.from_tensor_slices(data_arrays)
-    if is_train:
-        dataset = dataset.shuffle(buffer_size=1000)
-    dataset = dataset.batch(batch_size)
-    return dataset
-```
 
 ```{.python .input}
 #@tab all
@@ -186,19 +154,6 @@ net = nn.Sequential()
 net.add(nn.Dense(1))
 ```
 
-```{.python .input}
-#@tab pytorch
-# `nn` is an abbreviation for neural networks
-from torch import nn
-net = nn.Sequential(nn.Linear(2, 1))
-```
-
-```{.python .input}
-#@tab tensorflow
-# `keras` is the high-level API for TensorFlow
-net = tf.keras.Sequential()
-net.add(tf.keras.layers.Dense(1))
-```
 
 ## Initializing Model Parameters
 
@@ -230,19 +185,6 @@ The `initializers` module in TensorFlow provides various methods for model param
 ```{.python .input}
 from mxnet import init
 net.initialize(init.Normal(sigma=0.01))
-```
-
-```{.python .input}
-#@tab pytorch
-net[0].weight.data.normal_(0, 0.01)
-net[0].bias.data.fill_(0)
-```
-
-```{.python .input}
-#@tab tensorflow
-initializer = tf.initializers.RandomNormal(stddev=0.01)
-net = tf.keras.Sequential()
-net.add(tf.keras.layers.Dense(1, kernel_initializer=initializer))
 ```
 
 :begin_tab:`mxnet`
@@ -303,16 +245,6 @@ By default it returns the average loss over examples.
 loss = gluon.loss.L2Loss()
 ```
 
-```{.python .input}
-#@tab pytorch
-loss = nn.MSELoss()
-```
-
-```{.python .input}
-#@tab tensorflow
-loss = tf.keras.losses.MeanSquaredError()
-```
-
 ## Defining the Optimization Algorithm
 
 :begin_tab:`mxnet`
@@ -357,16 +289,6 @@ from mxnet import gluon
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.03})
 ```
 
-```{.python .input}
-#@tab pytorch
-trainer = torch.optim.SGD(net.parameters(), lr=0.03)
-```
-
-```{.python .input}
-#@tab tensorflow
-trainer = tf.keras.optimizers.SGD(learning_rate=0.03)
-```
-
 ## Training
 
 You might have noticed that expressing our model through
@@ -404,32 +326,6 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {l.mean().asnumpy():f}')
 ```
 
-```{.python .input}
-#@tab pytorch
-num_epochs = 3
-for epoch in range(num_epochs):
-    for X, y in data_iter:
-        l = loss(net(X) ,y)
-        trainer.zero_grad()
-        l.backward()
-        trainer.step()
-    l = loss(net(features), labels)
-    print(f'epoch {epoch + 1}, loss {l:f}')
-```
-
-```{.python .input}
-#@tab tensorflow
-num_epochs = 3
-for epoch in range(num_epochs):
-    for X, y in data_iter:
-        with tf.GradientTape() as tape:
-            l = loss(net(X, training=True), y)
-        grads = tape.gradient(l, net.trainable_variables)
-        trainer.apply_gradients(zip(grads, net.trainable_variables))
-    l = loss(net(features), labels)
-    print(f'epoch {epoch + 1}, loss {l:f}')
-```
-
 Below, we [**compare the model parameters learned by training on finite data
 and the actual parameters**] that generated our dataset.
 To access parameters,
@@ -446,21 +342,6 @@ b = net[0].bias.data()
 print(f'error in estimating b: {true_b - b}')
 ```
 
-```{.python .input}
-#@tab pytorch
-w = net[0].weight.data
-print('error in estimating w:', true_w - d2l.reshape(w, true_w.shape))
-b = net[0].bias.data
-print('error in estimating b:', true_b - b)
-```
-
-```{.python .input}
-#@tab tensorflow
-w = net.get_weights()[0]
-print('error in estimating w', true_w - d2l.reshape(w, true_w.shape))
-b = net.get_weights()[1]
-print('error in estimating b', true_b - b)
-```
 
 ## Summary
 

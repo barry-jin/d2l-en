@@ -18,18 +18,6 @@ from mxnet.gluon import nn
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import torch
-from torch import nn
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-```
 
 ```{.python .input}
 #@tab all
@@ -57,26 +45,6 @@ net.add(nn.Dense(10))
 net.initialize(init.Normal(sigma=0.01))
 ```
 
-```{.python .input}
-#@tab pytorch
-# PyTorch does not implicitly reshape the inputs. Thus we define the flatten
-# layer to reshape the inputs before the linear layer in our network
-net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
-
-def init_weights(m):
-    if type(m) == nn.Linear:
-        nn.init.normal_(m.weight, std=0.01)
-
-net.apply(init_weights);
-```
-
-```{.python .input}
-#@tab tensorflow
-net = tf.keras.models.Sequential()
-net.add(tf.keras.layers.Flatten(input_shape=(28, 28)))
-weight_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01)
-net.add(tf.keras.layers.Dense(10, kernel_initializer=weight_initializer))
-```
 
 ## Softmax Implementation Revisited
 :label:`subsec_softmax-implementation-revisited`
@@ -156,16 +124,6 @@ which does smart things like the ["LogSumExp trick"](https://en.wikipedia.org/wi
 loss = gluon.loss.SoftmaxCrossEntropyLoss()
 ```
 
-```{.python .input}
-#@tab pytorch
-loss = nn.CrossEntropyLoss()
-```
-
-```{.python .input}
-#@tab tensorflow
-loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-```
-
 ## Optimization Algorithm
 
 Here, we (**use minibatch stochastic gradient descent**)
@@ -175,16 +133,6 @@ and it illustrates the general applicability of the optimizers.
 
 ```{.python .input}
 trainer = gluon.Trainer(net.collect_params(), 'sgd', {'learning_rate': 0.1})
-```
-
-```{.python .input}
-#@tab pytorch
-trainer = torch.optim.SGD(net.parameters(), lr=0.1)
-```
-
-```{.python .input}
-#@tab tensorflow
-trainer = tf.keras.optimizers.SGD(learning_rate=.1)
 ```
 
 ## Training

@@ -17,19 +17,6 @@ from IPython import display
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-from d2l import torch as d2l
-import torch
-from IPython import display
-```
-
-```{.python .input}
-#@tab tensorflow
-from d2l import tensorflow as d2l
-import tensorflow as tf
-from IPython import display
-```
 
 ```{.python .input}
 #@tab all
@@ -67,24 +54,7 @@ W.attach_grad()
 b.attach_grad()
 ```
 
-```{.python .input}
-#@tab pytorch
-num_inputs = 784
-num_outputs = 10
 
-W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
-b = torch.zeros(num_outputs, requires_grad=True)
-```
-
-```{.python .input}
-#@tab tensorflow
-num_inputs = 784
-num_outputs = 10
-
-W = tf.Variable(tf.random.normal(shape=(num_inputs, num_outputs),
-                                 mean=0, stddev=0.01))
-b = tf.Variable(tf.zeros(num_outputs))
-```
 
 ## Defining the Softmax Operation
 
@@ -103,17 +73,6 @@ we can specify to keep the number of axes in the original tensor,
 rather than collapsing out the dimension that we summed over.
 This will result in a two-dimensional tensor with shape (1, 3).
 
-```{.python .input}
-#@tab pytorch
-X = d2l.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-d2l.reduce_sum(X, 0, keepdim=True), d2l.reduce_sum(X, 1, keepdim=True)
-```
-
-```{.python .input}
-#@tab mxnet, tensorflow
-X = d2l.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-d2l.reduce_sum(X, 0, keepdims=True), d2l.reduce_sum(X, 1, keepdims=True)
-```
 
 We are now ready to (**implement the softmax operation**).
 Recall that softmax consists of three steps:
@@ -144,13 +103,6 @@ def softmax(X):
     return X_exp / partition  # The broadcasting mechanism is applied here
 ```
 
-```{.python .input}
-#@tab pytorch
-def softmax(X):
-    X_exp = d2l.exp(X)
-    partition = d2l.reduce_sum(X_exp, 1, keepdim=True)
-    return X_exp / partition  # The broadcasting mechanism is applied here
-```
 
 As you can see, for any random input,
 [**we turn each element into a non-negative number.
@@ -164,12 +116,7 @@ X_prob = softmax(X)
 X_prob, d2l.reduce_sum(X_prob, 1)
 ```
 
-```{.python .input}
-#@tab tensorflow
-X = tf.random.normal((2, 5), 0, 1)
-X_prob = softmax(X)
-X_prob, tf.reduce_sum(X_prob, 1)
-```
+
 
 Note that while this looks correct mathematically,
 we were a bit sloppy in our implementation
@@ -219,12 +166,6 @@ y_hat = d2l.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
 y_hat[[0, 1], y]
 ```
 
-```{.python .input}
-#@tab tensorflow
-y_hat = tf.constant([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
-y = tf.constant([0, 2])
-tf.boolean_mask(y_hat, tf.one_hot(y, depth=y_hat.shape[-1]))
-```
 
 Now we can (**implement the cross-entropy loss function**) efficiently with just one line of code.
 
@@ -236,14 +177,6 @@ def cross_entropy(y_hat, y):
 cross_entropy(y_hat, y)
 ```
 
-```{.python .input}
-#@tab tensorflow
-def cross_entropy(y_hat, y):
-    return -tf.math.log(tf.boolean_mask(
-        y_hat, tf.one_hot(y, depth=y_hat.shape[-1])))
-
-cross_entropy(y_hat, y)
-```
 
 ## Classification Accuracy
 
@@ -310,17 +243,6 @@ def evaluate_accuracy(net, data_iter):  #@save
     return metric[0] / metric[1]
 ```
 
-```{.python .input}
-#@tab pytorch
-def evaluate_accuracy(net, data_iter):  #@save
-    """Compute the accuracy for a model on a dataset."""
-    if isinstance(net, torch.nn.Module):
-        net.eval()  # Set the model to evaluation mode
-    metric = Accumulator(2)  # No. of correct predictions, no. of predictions
-    for X, y in data_iter:
-        metric.add(accuracy(net(X), y), d2l.size(y))
-    return metric[0] / metric[1]
-```
 
 Here `Accumulator` is a utility class to accumulate sums over multiple variables.
 In the above `evaluate_accuracy` function,
@@ -386,65 +308,7 @@ def train_epoch_ch3(net, train_iter, loss, updater):  #@save
     return metric[0] / metric[2], metric[1] / metric[2]
 ```
 
-```{.python .input}
-#@tab pytorch
-def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """The training loop defined in Chapter 3."""
-    # Set the model to training mode
-    if isinstance(net, torch.nn.Module):
-        net.train()
-    # Sum of training loss, sum of training accuracy, no. of examples
-    metric = Accumulator(3)
-    for X, y in train_iter:
-        # Compute gradients and update parameters
-        y_hat = net(X)
-        l = loss(y_hat, y)
-        if isinstance(updater, torch.optim.Optimizer):
-            # Using PyTorch in-built optimizer & loss criterion
-            updater.zero_grad()
-            l.backward()
-            updater.step()
-            metric.add(float(l) * len(y), accuracy(y_hat, y),
-                       y.size().numel())
-        else:
-            # Using custom built optimizer & loss criterion
-            l.sum().backward()
-            updater(X.shape[0])
-            metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
-    # Return training loss and training accuracy
-    return metric[0] / metric[2], metric[1] / metric[2]
-```
 
-```{.python .input}
-#@tab tensorflow
-def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """The training loop defined in Chapter 3."""
-    # Sum of training loss, sum of training accuracy, no. of examples
-    metric = Accumulator(3)
-    for X, y in train_iter:
-        # Compute gradients and update parameters
-        with tf.GradientTape() as tape:
-            y_hat = net(X)
-            # Keras implementations for loss takes (labels, predictions)
-            # instead of (predictions, labels) that users might implement
-            # in this book, e.g. `cross_entropy` that we implemented above
-            if isinstance(loss, tf.keras.losses.Loss):
-                l = loss(y, y_hat)
-            else:
-                l = loss(y_hat, y)
-        if isinstance(updater, tf.keras.optimizers.Optimizer):
-            params = net.trainable_variables
-            grads = tape.gradient(l, params)
-            updater.apply_gradients(zip(grads, params))
-        else:
-            updater(X.shape[0], tape.gradient(l, updater.params))
-        # Keras loss by default returns the average loss in a batch
-        l_sum = l * float(tf.size(y)) if isinstance(
-            loss, tf.keras.losses.Loss) else tf.reduce_sum(l)
-        metric.add(l_sum, accuracy(y_hat, y), tf.size(y))
-    # Return training loss and training accuracy
-    return metric[0] / metric[2], metric[1] / metric[2]
-```
 
 Before showing the implementation of the training function,
 we define [**a utility class that plot data in animation.**]
@@ -530,19 +394,6 @@ def updater(batch_size):
     return d2l.sgd([W, b], lr, batch_size)
 ```
 
-```{.python .input}
-#@tab tensorflow
-class Updater():  #@save
-    """For updating parameters using minibatch stochastic gradient descent."""
-    def __init__(self, params, lr):
-        self.params = params
-        self.lr = lr
-
-    def __call__(self, batch_size, grads):
-        d2l.sgd(self.params, grads, self.lr, batch_size)
-
-updater = Updater([W, b], lr=0.1)
-```
 
 Now we [**train the model with 10 epochs.**]
 Note that both the number of epochs (`num_epochs`),

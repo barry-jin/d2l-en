@@ -24,21 +24,6 @@ import random
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-import random
-```
-
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-import random
-```
 
 ## Generating the Dataset
 
@@ -75,18 +60,6 @@ def synthetic_data(w, b, num_examples):  #@save
     y = d2l.matmul(X, w) + b
     y += d2l.normal(0, 0.01, y.shape)
     return X, d2l.reshape(y, (-1, 1))
-```
-
-```{.python .input}
-#@tab tensorflow
-def synthetic_data(w, b, num_examples):  #@save
-    """Generate y = Xw + b + noise."""
-    X = d2l.zeros((num_examples, w.shape[0]))
-    X += tf.random.normal(shape=X.shape)
-    y = d2l.matmul(X, tf.reshape(w, (-1, 1))) + b
-    y += tf.random.normal(shape=y.shape, stddev=0.01)
-    y = d2l.reshape(y, (-1, 1))
-    return X, y
 ```
 
 ```{.python .input}
@@ -144,17 +117,6 @@ def data_iter(batch_size, features, labels):
         yield features[batch_indices], labels[batch_indices]
 ```
 
-```{.python .input}
-#@tab tensorflow
-def data_iter(batch_size, features, labels):
-    num_examples = len(features)
-    indices = list(range(num_examples))
-    # The examples are read at random, in no particular order
-    random.shuffle(indices)
-    for i in range(0, num_examples, batch_size):
-        j = tf.constant(indices[i: min(i + batch_size, num_examples)])
-        yield tf.gather(features, j), tf.gather(labels, j)
-```
 
 In general, note that we want to use reasonably sized minibatches
 to take advantage of the GPU hardware,
@@ -205,18 +167,6 @@ w.attach_grad()
 b.attach_grad()
 ```
 
-```{.python .input}
-#@tab pytorch
-w = torch.normal(0, 0.01, size=(2,1), requires_grad=True)
-b = torch.zeros(1, requires_grad=True)
-```
-
-```{.python .input}
-#@tab tensorflow
-w = tf.Variable(tf.random.normal(shape=(2, 1), mean=0, stddev=0.01),
-                trainable=True)
-b = tf.Variable(tf.zeros(1), trainable=True)
-```
 
 After initializing our parameters,
 our next task is to update them until
@@ -301,23 +251,6 @@ def sgd(params, lr, batch_size):  #@save
         param[:] = param - lr * param.grad / batch_size
 ```
 
-```{.python .input}
-#@tab pytorch
-def sgd(params, lr, batch_size):  #@save
-    """Minibatch stochastic gradient descent."""
-    with torch.no_grad():
-        for param in params:
-            param -= lr * param.grad / batch_size
-            param.grad.zero_()
-```
-
-```{.python .input}
-#@tab tensorflow
-def sgd(params, grads, lr, batch_size):  #@save
-    """Minibatch stochastic gradient descent."""
-    for param, grad in zip(params, grads):
-        param.assign_sub(lr*grad/batch_size)
-```
 
 ## Training
 
@@ -376,32 +309,7 @@ for epoch in range(num_epochs):
     print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
 ```
 
-```{.python .input}
-#@tab pytorch
-for epoch in range(num_epochs):
-    for X, y in data_iter(batch_size, features, labels):
-        l = loss(net(X, w, b), y)  # Minibatch loss in `X` and `y`
-        # Compute gradient on `l` with respect to [`w`, `b`]
-        l.sum().backward()
-        sgd([w, b], lr, batch_size)  # Update parameters using their gradient
-    with torch.no_grad():
-        train_l = loss(net(features, w, b), labels)
-        print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
-```
 
-```{.python .input}
-#@tab tensorflow
-for epoch in range(num_epochs):
-    for X, y in data_iter(batch_size, features, labels):
-        with tf.GradientTape() as g:
-            l = loss(net(X, w, b), y)  # Minibatch loss in `X` and `y`
-        # Compute gradient on l with respect to [`w`, `b`]
-        dw, db = g.gradient(l, [w, b])
-        # Update parameters using their gradient
-        sgd([w, b], [dw, db], lr, batch_size)
-    train_l = loss(net(features, w, b), labels)
-    print(f'epoch {epoch + 1}, loss {float(tf.reduce_mean(train_l)):f}')
-```
 
 In this case, because we synthesized the dataset ourselves,
 we know precisely what the true parameters are.

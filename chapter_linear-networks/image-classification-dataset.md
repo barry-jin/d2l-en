@@ -21,26 +21,6 @@ import sys
 d2l.use_svg_display()
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import torch
-import torchvision
-from torchvision import transforms
-from torch.utils import data
-
-d2l.use_svg_display()
-```
-
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import tensorflow as tf
-
-d2l.use_svg_display()
-```
 
 ## Reading the Dataset
 
@@ -51,22 +31,6 @@ mnist_train = gluon.data.vision.FashionMNIST(train=True)
 mnist_test = gluon.data.vision.FashionMNIST(train=False)
 ```
 
-```{.python .input}
-#@tab pytorch
-# `ToTensor` converts the image data from PIL type to 32-bit floating point
-# tensors. It divides all numbers by 255 so that all pixel values are between
-# 0 and 1
-trans = transforms.ToTensor()
-mnist_train = torchvision.datasets.FashionMNIST(
-    root="../data", train=True, transform=trans, download=True)
-mnist_test = torchvision.datasets.FashionMNIST(
-    root="../data", train=False, transform=trans, download=True)
-```
-
-```{.python .input}
-#@tab tensorflow
-mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
-```
 
 Fashion-MNIST consists of images from 10 categories, each represented
 by 6000 images in the training dataset and by 1000 in the test dataset.
@@ -77,11 +41,6 @@ contain 60000 and 10000 images, respectively.
 ```{.python .input}
 #@tab mxnet, pytorch
 len(mnist_train), len(mnist_test)
-```
-
-```{.python .input}
-#@tab tensorflow
-len(mnist_train[0]), len(mnist_test[0])
 ```
 
 The height and width of each input image are both 28 pixels.
@@ -127,26 +86,6 @@ def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
     return axes
 ```
 
-```{.python .input}
-#@tab pytorch
-def show_images(imgs, num_rows, num_cols, titles=None, scale=1.5):  #@save
-    """Plot a list of images."""
-    figsize = (num_cols * scale, num_rows * scale)
-    _, axes = d2l.plt.subplots(num_rows, num_cols, figsize=figsize)
-    axes = axes.flatten()
-    for i, (ax, img) in enumerate(zip(axes, imgs)):
-        if torch.is_tensor(img):
-            # Tensor Image
-            ax.imshow(img.numpy())
-        else:
-            # PIL Image
-            ax.imshow(img)
-        ax.axes.get_xaxis().set_visible(False)
-        ax.axes.get_yaxis().set_visible(False)
-        if titles:
-            ax.set_title(titles[i])
-    return axes
-```
 
 Here are [**the images and their corresponding labels**] (in text)
 for the first few examples in the training dataset.
@@ -158,18 +97,6 @@ print(X.shape)
 show_images(X.squeeze(axis=-1), 2, 9, titles=get_fashion_mnist_labels(y));
 ```
 
-```{.python .input}
-#@tab pytorch
-X, y = next(iter(data.DataLoader(mnist_train, batch_size=18)))
-show_images(X.reshape(18, 28, 28), 2, 9, titles=get_fashion_mnist_labels(y));
-```
-
-```{.python .input}
-#@tab tensorflow
-X = tf.constant(mnist_train[0][:18])
-y = tf.constant(mnist_train[1][:18])
-show_images(X, 2, 9, titles=get_fashion_mnist_labels(y));
-```
 
 ## Reading a Minibatch
 
@@ -194,24 +121,6 @@ train_iter = gluon.data.DataLoader(mnist_train.transform_first(transformer),
                                    num_workers=get_dataloader_workers())
 ```
 
-```{.python .input}
-#@tab pytorch
-batch_size = 256
-
-def get_dataloader_workers():  #@save
-    """Use 4 processes to read the data."""
-    return 4
-
-train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
-                             num_workers=get_dataloader_workers())
-```
-
-```{.python .input}
-#@tab tensorflow
-batch_size = 256
-train_iter = tf.data.Dataset.from_tensor_slices(
-    mnist_train).batch(batch_size).shuffle(len(mnist_train[0]))
-```
 
 Let us look at the time it takes to read the training data.
 
@@ -244,42 +153,6 @@ def load_data_fashion_mnist(batch_size, resize=None):  #@save
                                   num_workers=get_dataloader_workers()),
             gluon.data.DataLoader(mnist_test, batch_size, shuffle=False,
                                   num_workers=get_dataloader_workers()))
-```
-
-```{.python .input}
-#@tab pytorch
-def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """Download the Fashion-MNIST dataset and then load it into memory."""
-    trans = [transforms.ToTensor()]
-    if resize:
-        trans.insert(0, transforms.Resize(resize))
-    trans = transforms.Compose(trans)
-    mnist_train = torchvision.datasets.FashionMNIST(
-        root="../data", train=True, transform=trans, download=True)
-    mnist_test = torchvision.datasets.FashionMNIST(
-        root="../data", train=False, transform=trans, download=True)
-    return (data.DataLoader(mnist_train, batch_size, shuffle=True,
-                            num_workers=get_dataloader_workers()),
-            data.DataLoader(mnist_test, batch_size, shuffle=False,
-                            num_workers=get_dataloader_workers()))
-```
-
-```{.python .input}
-#@tab tensorflow
-def load_data_fashion_mnist(batch_size, resize=None):   #@save
-    """Download the Fashion-MNIST dataset and then load it into memory."""
-    mnist_train, mnist_test = tf.keras.datasets.fashion_mnist.load_data()
-    # Divide all numbers by 255 so that all pixel values are between
-    # 0 and 1, add a batch dimension at the last. And cast label to int32
-    process = lambda X, y: (tf.expand_dims(X, axis=3) / 255,
-                            tf.cast(y, dtype='int32'))
-    resize_fn = lambda X, y: (
-        tf.image.resize_with_pad(X, resize, resize) if resize else X, y)
-    return (
-        tf.data.Dataset.from_tensor_slices(process(*mnist_train)).batch(
-            batch_size).shuffle(len(mnist_train[0])).map(resize_fn),
-        tf.data.Dataset.from_tensor_slices(process(*mnist_test)).batch(
-            batch_size).map(resize_fn))
 ```
 
 Below we test the image resizing feature of the `load_data_fashion_mnist` function

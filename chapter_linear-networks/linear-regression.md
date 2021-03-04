@@ -345,26 +345,6 @@ from mxnet import np
 import time
 ```
 
-```{.python .input}
-#@tab pytorch
-%matplotlib inline
-from d2l import torch as d2l
-import math
-import torch
-import numpy as np
-import time
-```
-
-```{.python .input}
-#@tab tensorflow
-%matplotlib inline
-from d2l import tensorflow as d2l
-import math
-import tensorflow as tf
-import numpy as np
-import time
-```
-
 To illustrate why this matters so much,
 we can (**consider two methods for adding vectors.**)
 To start we instantiate two 10000-dimensional vectors
@@ -425,14 +405,6 @@ for i in range(n):
 f'{timer.stop():.5f} sec'
 ```
 
-```{.python .input}
-#@tab tensorflow
-c = tf.Variable(d2l.zeros(n))
-timer = Timer()
-for i in range(n):
-    c[i].assign(a[i] + b[i])
-f'{timer.stop():.5f} sec'
-```
 
 (**Alternatively, we rely on the reloaded `+` operator to compute the elementwise sum.**)
 
