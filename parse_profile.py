@@ -18,13 +18,14 @@ class ProfileParser(object):
                 continue
             try:
                 file = os.path.join(self._work_path, file)
-                os.system('notedown {} --run > /dev/null'.format(file))
+                os.system('notedown {} --run > dummy.ipynb'.format(file))
             except OSError:
                 print("[INFO] Error: ")
             with open('profile.json', 'r') as f:
                 profile_res = json.load(f)
             self.parse_num_occurrences(profile_res)
             os.remove('profile.json')
+            os.remove('dummy.ipynb')
 
     def parse_num_occurrences(self, data):
         for d in data['traceEvents']:
