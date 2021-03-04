@@ -24,8 +24,10 @@ class ProfileParser(object):
             with open('profile.json', 'r') as f:
                 profile_res = json.load(f)
             self.parse_num_occurrences(profile_res)
-            os.remove('profile.json')
-            os.remove('dummy.ipynb')
+            if os.path.exists('profile.json'):
+                os.remove('profile.json')
+            if os.path.exists('dummy.ipynb'):
+                os.remove('dummy.ipynb')
 
     def parse_num_occurrences(self, data):
         for d in data['traceEvents']:
