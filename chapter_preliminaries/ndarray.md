@@ -60,15 +60,6 @@ from mxnet import np, npx
 npx.set_np()
 ```
 
-```{.python .input}
-#@tab pytorch
-import torch
-```
-
-```{.python .input}
-#@tab tensorflow
-import tensorflow as tf
-```
 
 [**A tensor represents a (possibly multi-dimensional) array of numerical values.**]
 With one axis, a tensor corresponds (in math) to a *vector*.
@@ -90,17 +81,6 @@ x = np.arange(12)
 x
 ```
 
-```{.python .input}
-#@tab pytorch
-x = torch.arange(12)
-x
-```
-
-```{.python .input}
-#@tab tensorflow
-x = tf.range(12)
-x
-```
 
 (**We can access a tensor's *shape***) (~~and the total number of elements~~) (the length along each axis)
 by inspecting its `shape` property.
@@ -120,15 +100,6 @@ the single element of its `shape` is identical to its size.
 x.size
 ```
 
-```{.python .input}
-#@tab pytorch
-x.numel()
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.size(x)
-```
 
 To [**change the shape of a tensor without altering
 either the number of elements or their values**],
@@ -142,17 +113,6 @@ the elements have not.
 Note that the size is unaltered by reshaping.
 
 
-```{.python .input}
-#@tab mxnet, pytorch
-X = x.reshape(3, 4)
-X
-```
-
-```{.python .input}
-#@tab tensorflow
-X = tf.reshape(x, (3, 4))
-X
-```
 
 Reshaping by manually specifying every dimension is unnecessary.
 If our target shape is a matrix with shape (height, width),
@@ -178,15 +138,7 @@ and a shape of (2, 3, 4) as follows:
 np.zeros((2, 3, 4))
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.zeros((2, 3, 4))
-```
 
-```{.python .input}
-#@tab tensorflow
-tf.zeros((2, 3, 4))
-```
 
 Similarly, we can create tensors with each element set to 1 as follows:
 
@@ -194,15 +146,6 @@ Similarly, we can create tensors with each element set to 1 as follows:
 np.ones((2, 3, 4))
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.ones((2, 3, 4))
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.ones((2, 3, 4))
-```
 
 Often, we want to [**randomly sample the values
 for each element in a tensor**]
@@ -220,15 +163,6 @@ with a mean of 0 and a standard deviation of 1.
 np.random.normal(0, 1, size=(3, 4))
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.randn(3, 4)
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.random.normal(shape=[3, 4])
-```
 
 We can also [**specify the exact values for each element**] in the desired tensor
 by supplying a Python list (or list of lists) containing the numerical values.
@@ -239,15 +173,6 @@ Here, the outermost list corresponds to axis 0, and the inner list to axis 1.
 np.array([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.tensor([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.constant([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
-```
 
 ## Operations
 
@@ -303,19 +228,6 @@ y = np.array([2, 2, 2, 2])
 x + y, x - y, x * y, x / y, x ** y  # The ** operator is exponentiation
 ```
 
-```{.python .input}
-#@tab pytorch
-x = torch.tensor([1.0, 2, 4, 8])
-y = torch.tensor([2, 2, 2, 2])
-x + y, x - y, x * y, x / y, x ** y  # The ** operator is exponentiation
-```
-
-```{.python .input}
-#@tab tensorflow
-x = tf.constant([1.0, 2, 4, 8])
-y = tf.constant([2.0, 2, 2, 2])
-x + y, x - y, x * y, x / y, x ** y  # The ** operator is exponentiation
-```
 
 Many (**more operations can be applied elementwise**),
 including unary operators like exponentiation.
@@ -324,15 +236,6 @@ including unary operators like exponentiation.
 np.exp(x)
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.exp(x)
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.exp(x)
-```
 
 In addition to elementwise computations,
 we can also perform linear algebra operations,
@@ -358,19 +261,6 @@ Y = np.array([[2, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
 np.concatenate([X, Y], axis=0), np.concatenate([X, Y], axis=1)
 ```
 
-```{.python .input}
-#@tab pytorch
-X = torch.arange(12, dtype=torch.float32).reshape((3,4))
-Y = torch.tensor([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
-torch.cat((X, Y), dim=0), torch.cat((X, Y), dim=1)
-```
-
-```{.python .input}
-#@tab tensorflow
-X = tf.reshape(tf.range(12, dtype=tf.float32), (3, 4))
-Y = tf.constant([[2.0, 1, 4, 3], [1, 2, 3, 4], [4, 3, 2, 1]])
-tf.concat([X, Y], axis=0), tf.concat([X, Y], axis=1)
-```
 
 
 Sometimes, we want to [**construct a binary tensor via *logical statements*.**]
@@ -387,15 +277,7 @@ X == Y
 
 [**Summing all the elements in the tensor**] yields a tensor with only one element.
 
-```{.python .input}
-#@tab mxnet, pytorch
-X.sum()
-```
 
-```{.python .input}
-#@tab tensorflow
-tf.reduce_sum(X)
-```
 
 ## Broadcasting Mechanism
 :label:`subsec_broadcasting`
@@ -422,19 +304,6 @@ b = np.arange(2).reshape(1, 2)
 a, b
 ```
 
-```{.python .input}
-#@tab pytorch
-a = torch.arange(3).reshape((3, 1))
-b = torch.arange(2).reshape((1, 2))
-a, b
-```
-
-```{.python .input}
-#@tab tensorflow
-a = tf.reshape(tf.range(3), (3, 1))
-b = tf.reshape(tf.range(2), (1, 2))
-a, b
-```
 
 Since `a` and `b` are $3\times1$ and $1\times2$ matrices respectively,
 their shapes do not match up if we want to add them.
@@ -487,12 +356,6 @@ X[1, 2] = 9
 X
 ```
 
-```{.python .input}
-#@tab tensorflow
-X_var = tf.Variable(X)
-X_var[1, 2].assign(9)
-X_var
-```
 
 
 If we want [**to assign multiple elements the same value,
@@ -509,12 +372,6 @@ X[0:2, :] = 12
 X
 ```
 
-```{.python .input}
-#@tab tensorflow
-X_var = tf.Variable(X)
-X_var[0:2, :].assign(tf.ones(X_var[0:2,:].shape, dtype = tf.float32) * 12)
-X_var
-```
 
 ## Saving Memory
 
@@ -576,21 +433,7 @@ Z[:] = X + Y
 print('id(Z):', id(Z))
 ```
 
-```{.python .input}
-#@tab pytorch
-Z = torch.zeros_like(Y)
-print('id(Z):', id(Z))
-Z[:] = X + Y
-print('id(Z):', id(Z))
-```
 
-```{.python .input}
-#@tab tensorflow
-Z = tf.Variable(tf.zeros_like(Y))
-print('id(Z):', id(Z))
-Z.assign(X + Y)
-print('id(Z):', id(Z))
-```
 
 :begin_tab:`mxnet, pytorch`
 [**If the value of `X` is not reused in subsequent computations,
@@ -621,18 +464,6 @@ X += Y
 id(X) == before
 ```
 
-```{.python .input}
-#@tab tensorflow
-@tf.function
-def computation(X, Y):
-    Z = tf.zeros_like(Y)  # This unused value will be pruned out
-    A = X + Y  # Allocations will be re-used when no longer needed
-    B = A + Y
-    C = B + Y
-    return C + Y
-
-computation(X, Y)
-```
 
 
 ## Conversion to Other Python Objects
@@ -652,19 +483,6 @@ B = np.array(A)
 type(A), type(B)
 ```
 
-```{.python .input}
-#@tab pytorch
-A = X.numpy()
-B = torch.tensor(A)
-type(A), type(B)
-```
-
-```{.python .input}
-#@tab tensorflow
-A = X.numpy()
-B = tf.constant(A)
-type(A), type(B)
-```
 
 To (**convert a size-1 tensor to a Python scalar**),
 we can invoke the `item` function or Python's built-in functions.
@@ -675,17 +493,6 @@ a = np.array([3.5])
 a, a.item(), float(a), int(a)
 ```
 
-```{.python .input}
-#@tab pytorch
-a = torch.tensor([3.5])
-a, a.item(), float(a), int(a)
-```
-
-```{.python .input}
-#@tab tensorflow
-a = tf.constant([3.5]).numpy()
-a, a.item(), float(a), int(a)
-```
 
 ## Summary
 
@@ -701,10 +508,3 @@ a, a.item(), float(a), int(a)
 [Discussions](https://discuss.d2l.ai/t/26)
 :end_tab:
 
-:begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/27)
-:end_tab:
-
-:begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/187)
-:end_tab:

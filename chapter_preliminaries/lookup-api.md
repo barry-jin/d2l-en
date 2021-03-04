@@ -3,13 +3,6 @@
 Due to constraints on the length of this book, we cannot possibly introduce every single MXNet function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the MXNet API.
 :end_tab:
 
-:begin_tab:`pytorch`
-Due to constraints on the length of this book, we cannot possibly introduce every single PyTorch function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the PyTorch API.
-:end_tab:
-
-:begin_tab:`tensorflow`
-Due to constraints on the length of this book, we cannot possibly introduce every single TensorFlow function and class (and you probably would not want us to). The API documentation and additional tutorials and examples provide plenty of documentation beyond the book. In this section we provide you with some guidance to exploring the TensorFlow API.
-:end_tab:
 
 
 ## Finding All the Functions and Classes in a Module
@@ -23,17 +16,7 @@ from mxnet import np
 print(dir(np.random))
 ```
 
-```{.python .input  n=1}
-#@tab pytorch
-import torch
-print(dir(torch.distributions))
-```
 
-```{.python .input  n=1}
-#@tab tensorflow
-import tensorflow as tf
-print(dir(tf.random))
-```
 
 Generally, we can ignore functions that start and end with `__` (special objects in Python) or functions that start with a single `_`(usually internal functions). Based on the remaining function or attribute names, we might hazard a guess that this module offers various methods for generating random numbers, including sampling from the uniform distribution (`uniform`), normal distribution (`normal`), and multinomial distribution  (`multinomial`).
 
@@ -45,15 +28,6 @@ For more specific instructions on how to use a given function or class, we can i
 help(np.ones)
 ```
 
-```{.python .input}
-#@tab pytorch
-help(torch.ones)
-```
-
-```{.python .input}
-#@tab tensorflow
-help(tf.ones)
-```
 
 From the documentation, we can see that the `ones` function creates a new tensor with the specified shape and sets all the elements to the value of 1. Whenever possible, you should (**run a quick test**) to confirm your interpretation:
 
@@ -61,15 +35,6 @@ From the documentation, we can see that the `ones` function creates a new tensor
 np.ones(4)
 ```
 
-```{.python .input}
-#@tab pytorch
-torch.ones(4)
-```
-
-```{.python .input}
-#@tab tensorflow
-tf.ones(4)
-```
 
 In the Jupyter notebook, we can use `?` to display the document in another
 window. For example, `list?` will create content that is almost
@@ -92,12 +57,4 @@ displayed.
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/38)
-:end_tab:
-
-:begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/39)
-:end_tab:
-
-:begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/199)
 :end_tab:

@@ -36,21 +36,6 @@ x = np.arange(4.0)
 x
 ```
 
-```{.python .input}
-#@tab pytorch
-import torch
-
-x = torch.arange(4.0)
-x
-```
-
-```{.python .input}
-#@tab tensorflow
-import tensorflow as tf
-
-x = tf.range(4, dtype=tf.float32)
-x
-```
 
 [**Before we even calculate the gradient
 of $y$ with respect to $\mathbf{x}$,
@@ -72,17 +57,6 @@ x.attach_grad()
 x.grad
 ```
 
-```{.python .input}
-#@tab pytorch
-x.requires_grad_(True)  # Same as `x = torch.arange(4.0, requires_grad=True)`
-x.grad  # The default value is None
-```
-
-```{.python .input}
-#@tab tensorflow
-x = tf.Variable(x)
-```
-
 (**Now let us calculate $y$.**)
 
 ```{.python .input}
@@ -93,19 +67,6 @@ with autograd.record():
 y
 ```
 
-```{.python .input}
-#@tab pytorch
-y = 2 * torch.dot(x, x)
-y
-```
-
-```{.python .input}
-#@tab tensorflow
-# Record all computations onto a tape
-with tf.GradientTape() as t:
-    y = 2 * tf.tensordot(x, x, axes=1)
-y
-```
 
 Since `x` is a vector of length 4,
 an inner product of `x` and `x` is performed,
@@ -119,17 +80,6 @@ y.backward()
 x.grad
 ```
 
-```{.python .input}
-#@tab pytorch
-y.backward()
-x.grad
-```
-
-```{.python .input}
-#@tab tensorflow
-x_grad = t.gradient(y, x)
-x_grad
-```
 
 (**The gradient of the function $y = 2\mathbf{x}^{\top}\mathbf{x}$
 with respect to $\mathbf{x}$ should be $4\mathbf{x}$.**)
@@ -139,15 +89,6 @@ Let us quickly verify that our desired gradient was calculated correctly.
 x.grad == 4 * x
 ```
 
-```{.python .input}
-#@tab pytorch
-x.grad == 4 * x
-```
-
-```{.python .input}
-#@tab tensorflow
-x_grad == 4 * x
-```
 
 [**Now let us calculate another function of `x`.**]
 
@@ -156,23 +97,6 @@ with autograd.record():
     y = x.sum()
 y.backward()
 x.grad  # Overwritten by the newly calculated gradient
-```
-
-```{.python .input}
-#@tab pytorch
-# PyTorch accumulates the gradient in default, we need to clear the previous
-# values
-x.grad.zero_()
-y = x.sum()
-y.backward()
-x.grad
-```
-
-```{.python .input}
-#@tab tensorflow
-with tf.GradientTape() as t:
-    y = tf.reduce_sum(x)
-t.gradient(y, x)  # Overwritten by the newly calculated gradient
 ```
 
 ## Backward for Non-Scalar Variables
@@ -200,26 +124,6 @@ with autograd.record():
     y = x * x  # `y` is a vector
 y.backward()
 x.grad  # Equals to y = sum(x * x)
-```
-
-```{.python .input}
-#@tab pytorch
-# Invoking `backward` on a non-scalar requires passing in a `gradient` argument
-# which specifies the gradient of the differentiated function w.r.t `self`.
-# In our case, we simply want to sum the partial derivatives, so passing
-# in a gradient of ones is appropriate
-x.grad.zero_()
-y = x * x
-# y.backward(torch.ones(len(x))) equivalent to the below
-y.sum().backward()
-x.grad
-```
-
-```{.python .input}
-#@tab tensorflow
-with tf.GradientTape() as t:
-    y = x * x
-t.gradient(y, x)  # Same as `y = tf.reduce_sum(x * x)`
 ```
 
 ## Detaching Computation
@@ -251,28 +155,6 @@ z.backward()
 x.grad == u
 ```
 
-```{.python .input}
-#@tab pytorch
-x.grad.zero_()
-y = x * x
-u = y.detach()
-z = u * x
-
-z.sum().backward()
-x.grad == u
-```
-
-```{.python .input}
-#@tab tensorflow
-# Set `persistent=True` to run `t.gradient` more than once
-with tf.GradientTape(persistent=True) as t:
-    y = x * x
-    u = tf.stop_gradient(y)
-    z = u * x
-
-x_grad = t.gradient(z, x)
-x_grad == u
-```
 
 Since the computation of `y` was recorded,
 we can subsequently invoke backpropagation on `y` to get the derivative of `y = x * x` with respect to `x`, which is `2 * x`.
@@ -282,17 +164,6 @@ y.backward()
 x.grad == 2 * x
 ```
 
-```{.python .input}
-#@tab pytorch
-x.grad.zero_()
-y.sum().backward()
-x.grad == 2 * x
-```
-
-```{.python .input}
-#@tab tensorflow
-t.gradient(y, x) == 2 * x
-```
 
 ## Computing the Gradient of Python Control Flow
 
@@ -318,31 +189,6 @@ def f(a):
     return c
 ```
 
-```{.python .input}
-#@tab pytorch
-def f(a):
-    b = a * 2
-    while b.norm() < 1000:
-        b = b * 2
-    if b.sum() > 0:
-        c = b
-    else:
-        c = 100 * b
-    return c
-```
-
-```{.python .input}
-#@tab tensorflow
-def f(a):
-    b = a * 2
-    while tf.norm(b) < 1000:
-        b = b * 2
-    if tf.reduce_sum(b) > 0:
-        c = b
-    else:
-        c = 100 * b
-    return c
-```
 
 Let us compute the gradient.
 
@@ -354,21 +200,6 @@ with autograd.record():
 d.backward()
 ```
 
-```{.python .input}
-#@tab pytorch
-a = torch.randn(size=(), requires_grad=True)
-d = f(a)
-d.backward()
-```
-
-```{.python .input}
-#@tab tensorflow
-a = tf.Variable(tf.random.normal(shape=()))
-with tf.GradientTape() as t:
-    d = f(a)
-d_grad = t.gradient(d, a)
-d_grad
-```
 
 We can now analyze the `f` function defined above.
 Note that it is piecewise linear in its input `a`.
@@ -380,15 +211,6 @@ Consequently `d / a` allows us to verify that the gradient is correct.
 a.grad == d / a
 ```
 
-```{.python .input}
-#@tab pytorch
-a.grad == d / a
-```
-
-```{.python .input}
-#@tab tensorflow
-d_grad == d / a
-```
 
 ## Summary
 
@@ -405,12 +227,4 @@ d_grad == d / a
 
 :begin_tab:`mxnet`
 [Discussions](https://discuss.d2l.ai/t/34)
-:end_tab:
-
-:begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/35)
-:end_tab:
-
-:begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/200)
 :end_tab:

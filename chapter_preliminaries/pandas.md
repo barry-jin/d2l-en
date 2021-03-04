@@ -92,22 +92,6 @@ X, y = np.array(inputs.values), np.array(outputs.values)
 X, y
 ```
 
-```{.python .input}
-#@tab pytorch
-import torch
-
-X, y = torch.tensor(inputs.values), torch.tensor(outputs.values)
-X, y
-```
-
-```{.python .input}
-#@tab tensorflow
-import tensorflow as tf
-
-X, y = tf.constant(inputs.values), tf.constant(outputs.values)
-X, y
-```
-
 ## Summary
 
 * Like many other extension packages in the vast ecosystem of Python, `pandas` can work together with tensors.
@@ -125,10 +109,3 @@ Create a raw dataset with more rows and columns.
 [Discussions](https://discuss.d2l.ai/t/28)
 :end_tab:
 
-:begin_tab:`pytorch`
-[Discussions](https://discuss.d2l.ai/t/29)
-:end_tab:
-
-:begin_tab:`tensorflow`
-[Discussions](https://discuss.d2l.ai/t/195)
-:end_tab:
