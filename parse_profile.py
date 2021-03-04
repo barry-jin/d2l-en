@@ -18,7 +18,7 @@ class ProfileParser(object):
                 continue
             try:
                 file = os.path.join(self._work_path, file)
-                os.system('notedown {} --run > dummy.ipynb'.format(file))
+                os.system('notedown {} --timeout 1200 --run > dummy.ipynb'.format(file))
             except OSError:
                 print("[INFO] Error: ")
             if os.path.exists('profile.json'):
