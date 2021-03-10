@@ -158,7 +158,7 @@ finetune_net.features = pretrained_net.features
 finetune_net.output.initialize(init.Xavier())
 # The model parameters in output will be updated using a learning rate ten
 # times greater
-finetune_net.output.collect_params().setattr('lr_mult', 10)
+finetune_net.output.collect_params()['lr_mult'] = 10
 ```
 
 ```{.python .input}
@@ -260,7 +260,7 @@ As you can see, the fine-tuned model tends to achieve higher precision in the sa
 3. Set the parameters in `finetune_net.features` to the parameters of the source model and do not update them during training. What will happen? You can use the following code.
 
 ```{.python .input}
-finetune_net.features.collect_params().setattr('grad_req', 'null')
+finetune_net.features.collect_params()['grad_req'] = 'null'
 ```
 
 ```{.python .input}

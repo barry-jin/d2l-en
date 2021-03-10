@@ -154,7 +154,7 @@ Then, we will use these word vectors as feature vectors for each word in the rev
 
 ```{.python .input}
 net.embedding.weight.set_data(embeds)
-net.embedding.collect_params().setattr('grad_req', 'null')
+net.embedding.collect_params()['grad_req'] = 'null'
 ```
 
 ```{.python .input}

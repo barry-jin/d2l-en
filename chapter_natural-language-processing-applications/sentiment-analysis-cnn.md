@@ -235,7 +235,7 @@ glove_embedding = d2l.TokenEmbedding('glove.6b.100d')
 embeds = glove_embedding[vocab.idx_to_token]
 net.embedding.weight.set_data(embeds)
 net.constant_embedding.weight.set_data(embeds)
-net.constant_embedding.collect_params().setattr('grad_req', 'null')
+net.constant_embedding.collect_params()['grad_req'] = 'null'
 ```
 
 ```{.python .input}
