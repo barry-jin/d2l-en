@@ -360,19 +360,24 @@ functionality of the default `Sequential` class.
 
 ```{.python .input}
 class MySequential(nn.Block):
+    def __init__(self):
+        super(MySequential, self).__init__()
+        self._layers = []
+
     def add(self, block):
         # Here, `block` is an instance of a `Block` subclass, and we assume 
         # that it has a unique name. We save it in the member variable
         # `_children` of the `Block` class, and its type is OrderedDict. When
         # the `MySequential` instance calls the `initialize` function, the
         # system automatically initializes all members of `_children`
-        self._children[block.name] = block
+        self._layers.append(block)
+        self.register_child(block)
 
     def forward(self, X):
         # OrderedDict guarantees that members will be traversed in the order
         # they were added
         for block in self._children.values():
-            X = block(X)
+            X = block()(X)
         return X
 ```
 
