@@ -289,8 +289,7 @@ based on the parametric attention pooling in
 class NWKernelRegression(nn.Block):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        with self.name_scope():
-            self.w = Parameter('w', shape=(1,))
+        self.w = Parameter('w', shape=(1,))
 
     def forward(self, queries, keys, values):
         # Shape of the output `queries` and `attention_weights`:
