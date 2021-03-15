@@ -73,8 +73,9 @@ We can store a list of tensors and read them back into memory.
 
 ```{.python .input}
 y = np.zeros(4)
-npx.save('x-files', [x, y])
-x2, y2 = npx.load('x-files')
+arr_list = [x, y]
+npx.save('x-files', *arr_list)
+x2, y2 = npx.load('x-files').values()
 (x2, y2)
 ```
 
@@ -101,7 +102,7 @@ to read or write all the weights in a model.
 
 ```{.python .input}
 mydict = {'x': x, 'y': y}
-npx.save('mydict', mydict)
+npx.savez('mydict', **mydict)
 mydict2 = npx.load('mydict')
 mydict2
 ```

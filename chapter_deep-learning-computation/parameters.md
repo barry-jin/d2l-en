@@ -187,7 +187,7 @@ print(net.get_weights())
 This provides us with another way of accessing the parameters of the network as follows.
 
 ```{.python .input}
-net.collect_params()['dense1_bias'].data()
+net.collect_params()['1.bias'].data()
 ```
 
 ```{.python .input}

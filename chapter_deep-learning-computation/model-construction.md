@@ -100,7 +100,7 @@ with 10 units (no activation function).
 
 ```{.python .input}
 from mxnet import np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Constant
 npx.set_np()
 
 net = nn.Sequential()
@@ -514,10 +514,9 @@ So we implement a `FixedHiddenMLP` class as follows.
 class FixedHiddenMLP(nn.Block):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Random weight parameters created with the `get_constant` function
+        # Random weight parameters created with the `Constant` class
         # are not updated during training (i.e., constant parameters)
-        self.rand_weight = self.params.get_constant(
-            'rand_weight', np.random.uniform(size=(20, 20)))
+        self.rand_weight = Constant(np.random.uniform(size=(20, 20)))
         self.dense = nn.Dense(20, activation='relu')
 
     def forward(self, X):

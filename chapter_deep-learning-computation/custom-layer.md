@@ -28,7 +28,7 @@ from the base layer class and implement the forward propagation function.
 
 ```{.python .input}
 from mxnet import np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 npx.set_np()
 
 class CenteredLayer(nn.Block):
@@ -149,8 +149,8 @@ denote the number of inputs and outputs, respectively.
 class MyDense(nn.Block):
     def __init__(self, units, in_units, **kwargs):
         super().__init__(**kwargs)
-        self.weight = self.params.get('weight', shape=(in_units, units))
-        self.bias = self.params.get('bias', shape=(units,))
+        self.weight = Parameter('weight', shape=(in_units, units))
+        self.bias = Parameter('bias', shape=(units,))
 
     def forward(self, x):
         linear = np.dot(x, self.weight.data(ctx=x.ctx)) + self.bias.data(
