@@ -202,7 +202,7 @@ net.initialize()
 X = np.random.uniform(size=(1, 1, 224, 224))
 for blk in net:
     X = blk(X)
-    print(blk.name, 'output shape:\t', X.shape)
+    print(blk.__class__.__name__, 'output shape:\t', X.shape)
 ```
 
 ```{.python .input}

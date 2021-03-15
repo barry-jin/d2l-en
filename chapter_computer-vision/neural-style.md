@@ -28,7 +28,7 @@ First, we read the content and style images. By printing out the image coordinat
 %matplotlib inline
 from d2l import mxnet as d2l
 from mxnet import autograd, gluon, image, init, np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 
 npx.set_np()
 
@@ -264,7 +264,7 @@ In style transfer, the composite image is the only variable that needs to be upd
 class GeneratedImage(nn.Block):
     def __init__(self, img_shape, **kwargs):
         super(GeneratedImage, self).__init__(**kwargs)
-        self.weight = self.params.get('weight', shape=img_shape)
+        self.weight = Parameter('weight', shape=img_shape)
 
     def forward(self):
         return self.weight.data()

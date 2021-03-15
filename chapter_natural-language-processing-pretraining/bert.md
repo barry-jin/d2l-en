@@ -113,7 +113,7 @@ we will illustrate fine-tuning of BERT for downstream applications.
 ```{.python .input}
 from d2l import mxnet as d2l
 from mxnet import gluon, np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 
 npx.set_np()
 ```
@@ -200,7 +200,7 @@ class BERTEncoder(nn.Block):
                 num_hiddens, ffn_num_hiddens, num_heads, dropout, True))
         # In BERT, positional embeddings are learnable, thus we create a
         # parameter of positional embeddings that are long enough
-        self.pos_embedding = self.params.get('pos_embedding',
+        self.pos_embedding = Parameter('pos_embedding',
                                              shape=(1, max_len, num_hiddens))
 
     def forward(self, tokens, segments, valid_lens):

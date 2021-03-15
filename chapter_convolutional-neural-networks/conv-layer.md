@@ -78,7 +78,7 @@ and returns an output tensor `Y`.
 ```{.python .input}
 from d2l import mxnet as d2l
 from mxnet import autograd, np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 npx.set_np()
 ```
 
@@ -150,8 +150,8 @@ calls the `corr2d` function and adds the bias.
 class Conv2D(nn.Block):
     def __init__(self, kernel_size, **kwargs):
         super().__init__(**kwargs)
-        self.weight = self.params.get('weight', shape=kernel_size)
-        self.bias = self.params.get('bias', shape=(1,))
+        self.weight = Parameter('weight', shape=kernel_size)
+        self.bias = Parameter('bias', shape=(1,))
 
     def forward(self, x):
         return corr2d(x, self.weight.data()) + self.bias.data()

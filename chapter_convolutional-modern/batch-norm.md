@@ -215,7 +215,7 @@ Below, we implement a batch normalization layer with tensors from scratch.
 ```{.python .input}
 from d2l import mxnet as d2l
 from mxnet import autograd, np, npx, init
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 npx.set_np()
 
 def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
@@ -335,8 +335,8 @@ class BatchNorm(nn.Block):
             shape = (1, num_features, 1, 1)
         # The scale parameter and the shift parameter (model parameters) are
         # initialized to 1 and 0, respectively
-        self.gamma = self.params.get('gamma', shape=shape, init=init.One())
-        self.beta = self.params.get('beta', shape=shape, init=init.Zero())
+        self.gamma = Parameter('gamma', shape=shape, init=init.One())
+        self.beta = Parameter('beta', shape=shape, init=init.Zero())
         # The variables that are not model parameters are initialized to 0 and 1
         self.moving_mean = np.zeros(shape)
         self.moving_var = np.ones(shape)

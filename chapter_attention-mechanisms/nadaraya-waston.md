@@ -20,7 +20,7 @@ for demonstrating machine learning with attention mechanisms.
 ```{.python .input}
 from d2l import mxnet as d2l
 from mxnet import autograd, gluon, np, npx
-from mxnet.gluon import nn
+from mxnet.gluon import nn, Parameter
 
 npx.set_np()
 ```
@@ -289,7 +289,8 @@ based on the parametric attention pooling in
 class NWKernelRegression(nn.Block):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.w = self.params.get('w', shape=(1,))
+        with self.name_scope():
+            self.w = Parameter('w', shape=(1,))
 
     def forward(self, queries, keys, values):
         # Shape of the output `queries` and `attention_weights`:

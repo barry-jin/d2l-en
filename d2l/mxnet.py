@@ -26,7 +26,7 @@ d2l = sys.modules[__name__]
 
 # Defined in file: ./chapter_preface/index.md
 from mxnet import autograd, context, gluon, image, init, np, npx
-from mxnet.gluon import nn, rnn
+from mxnet.gluon import nn, rnn, Parameter
 
 
 # Defined in file: ./chapter_preliminaries/calculus.md
@@ -2112,7 +2112,7 @@ class BERTEncoder(nn.Block):
                                  dropout, True))
         # In BERT, positional embeddings are learnable, thus we create a
         # parameter of positional embeddings that are long enough
-        self.pos_embedding = self.params.get('pos_embedding',
+        self.pos_embedding = Parameter('pos_embedding',
                                              shape=(1, max_len, num_hiddens))
 
     def forward(self, tokens, segments, valid_lens):
