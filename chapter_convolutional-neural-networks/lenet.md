@@ -168,7 +168,7 @@ X = np.random.uniform(size=(1, 1, 28, 28))
 net.initialize()
 for layer in net:
     X = layer(X)
-    print(layer.name, 'output shape:\t', X.shape)
+    print(layer.__class__.__name__, 'output shape:\t', X.shape)
 ```
 
 ```{.python .input}
