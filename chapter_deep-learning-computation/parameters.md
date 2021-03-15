@@ -576,7 +576,7 @@ net = nn.Sequential()
 shared = nn.Dense(8, activation='relu')
 net.add(nn.Dense(8, activation='relu'),
         shared,
-        nn.Dense(8, activation='relu', params=shared.params),
+        shared,
         nn.Dense(10))
 net.initialize()
 

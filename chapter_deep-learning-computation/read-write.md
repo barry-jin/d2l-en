@@ -28,7 +28,7 @@ from mxnet.gluon import nn
 npx.set_np()
 
 x = np.arange(4)
-npx.save('x-file', x)
+npx.savez('x-file', x)
 ```
 
 ```{.python .input}
@@ -74,7 +74,7 @@ We can store a list of tensors and read them back into memory.
 ```{.python .input}
 y = np.zeros(4)
 arr_list = [x, y]
-npx.save('x-files', *arr_list)
+npx.savez('x-files', *arr_list)
 x2, y2 = npx.load('x-files').values()
 (x2, y2)
 ```
