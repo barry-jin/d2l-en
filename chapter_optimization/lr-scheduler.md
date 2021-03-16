@@ -235,7 +235,16 @@ print(f'learning rate is now ,', dummy_model.optimizer.lr.numpy())
 More generally we want to define a scheduler. When invoked with the number of updates it returns the appropriate value of the learning rate. Let us define a simple one that sets the learning rate to $\eta = \eta_0 (t + 1)^{-\frac{1}{2}}$.
 
 ```{.python .input}
-#@tab all
+class SquareRootScheduler:
+    def __init__(self, lr=0.1):
+        self.base_lr = lr
+
+    def __call__(self, num_update):
+        return self.base_lr * pow(num_update + 1.0, -0.5)
+```
+
+```{.python .input}
+#@tab pytorch, tensorflow
 class SquareRootScheduler:
     def __init__(self, lr=0.1):
         self.lr = lr
