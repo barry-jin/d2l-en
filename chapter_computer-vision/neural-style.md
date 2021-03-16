@@ -366,7 +366,7 @@ Next, we start to train the model. First, we set the height and width of the con
 
 ```{.python .input}
 device, image_shape = d2l.try_gpu(), (225, 150)
-net.collect_params().reset_ctx(device)
+net.reset_ctx(device)
 content_X, contents_Y = get_contents(image_shape, device)
 _, styles_Y = get_styles(image_shape, device)
 output = train(content_X, contents_Y, styles_Y, device, 0.01, 500, 200)

@@ -181,7 +181,7 @@ def train_fine_tuning(net, learning_rate, batch_size=128, num_epochs=5):
     test_iter = gluon.data.DataLoader(
         test_imgs.transform_first(test_augs), batch_size)
     devices = d2l.try_all_gpus()
-    net.collect_params().reset_ctx(devices)
+    net.reset_ctx(devices)
     net.hybridize()
     loss = gluon.loss.SoftmaxCrossEntropyLoss()
     trainer = gluon.Trainer(net.collect_params(), 'sgd', {

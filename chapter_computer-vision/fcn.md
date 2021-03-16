@@ -228,7 +228,7 @@ Now we can start training the model. The loss function and accuracy calculation 
 ```{.python .input}
 num_epochs, lr, wd, devices = 5, 0.1, 1e-3, d2l.try_all_gpus()
 loss = gluon.loss.SoftmaxCrossEntropyLoss(axis=1)
-net.collect_params().reset_ctx(devices)
+net.reset_ctx(devices)
 trainer = gluon.Trainer(net.collect_params(), 'sgd',
                         {'learning_rate': lr, 'wd': wd})
 d2l.train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs, devices)

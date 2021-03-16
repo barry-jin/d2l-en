@@ -227,14 +227,14 @@ You must note that, during image augmentation, we use the mean values and standa
 def get_net(devices):
     finetune_net = gluon.model_zoo.vision.resnet34_v2(pretrained=True)
     # Define a new output network
-    finetune_net.output_new = nn.HybridSequential(prefix='')
+    finetune_net.output_new = nn.HybridSequential()
     finetune_net.output_new.add(nn.Dense(256, activation='relu'))
     # There are 120 output categories
     finetune_net.output_new.add(nn.Dense(120))
     # Initialize the output network
     finetune_net.output_new.initialize(init.Xavier(), ctx=devices)
     # Distribute the model parameters to the CPUs or GPUs used for computation
-    finetune_net.collect_params().reset_ctx(devices)
+    finetune_net.reset_ctx(devices)
     return finetune_net
 ```
 
