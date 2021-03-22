@@ -272,7 +272,21 @@ def load_data_ptb(batch_size, max_window_size, num_noise_words):
     all_centers, all_contexts = get_centers_and_contexts(
         corpus, max_window_size)
     all_negatives = get_negatives(all_contexts, corpus, num_noise_words)
-    dataset = gluon.data.ArrayDataset(
+
+    class PTBDataset(gluon.data.Dataset):
+        def __init__(self, centers, contexts, negatives):
+            assert len(centers) == len(contexts) == len(negatives)
+            self.centers = centers
+            self.contexts = contexts
+            self.negatives = negatives
+
+        def __getitem__(self, index):
+            return (self.centers[index], self.contexts[index], self.negatives[index])
+
+        def __len__(self):
+            return len(self.centers)
+
+    dataset = PTBDataset(
         all_centers, all_contexts, all_negatives)
     data_iter = gluon.data.DataLoader(dataset, batch_size, shuffle=True,
                                       batchify_fn=batchify,
